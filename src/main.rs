@@ -2,6 +2,7 @@
 
 use std::io::{BufRead, BufReader};
 use clap::Parser;
+use anyhow::{Context, Result};
 
 
 /// Search for a pattern in a file and display the lines that contain it.
@@ -13,24 +14,22 @@ struct Cli {
     path: std::path::PathBuf,
 }
 
-fn main() {
+fn main() -> Result<()> {
     let args = Cli::parse();
 
     println!("pattern is {pattern} and path is {path:?}",
              pattern = args.pattern,
              path = args.path);
 
-    let mut reader = BufReader::new(std::fs::File::open(&args.path).expect("could not open file"));
-    let mut line = String::new();
+    let path = &args.path;
 
-    loop {
-        let len = reader.read_line(&mut line).expect("could not read line");
-        if len == 0 {
-            break;
-        }
+    let content = std::fs::read_to_string(path)
+        .with_context(|| format!("could not read file `{}`", path.display()))?;
+
+    for line in content.lines() {
         if line.contains(&args.pattern) {
-            print!("{}", line);
+            println!("{}", line);
         }
-        line.truncate(0);
     }
+    Ok(())
 }
