@@ -2,14 +2,14 @@
 
 use home::home_dir;
 use std::io::{BufRead, BufReader};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use clap::{Parser, Subcommand};
 use anyhow::{Context, Result};
 use arduino_cli_client::commands::arduino_core_client::ArduinoCoreClient;
 use arduino_cli_client::commands::{BoardListReq, InitReq};
 use clap::builder::Str;
 use config_file::FromConfigFile;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 /// Search for a pattern in a file and display the lines that contain it.
 #[derive(Parser)]
@@ -37,36 +37,73 @@ enum TyrBootstrapCommands {
     ListDevices,
 }
 
-#[derive(Deserialize, Debug)]
-struct Config {
-    bootstrap: BootstrapConfig,
+#[derive(Serialize, Deserialize, Debug)]
+struct TyrConfig {
+    bootstrap: TyrBootstrapConfig,
 }
 
-#[derive(Deserialize, Debug)]
-struct BootstrapConfig {
-    arduino: ArduinoConfig,
+#[derive(Serialize, Deserialize, Debug)]
+struct TyrBootstrapConfig {
+    arduino: TyrArduinoConfig,
 }
 
-#[derive(Deserialize, Debug)]
-struct ArduinoConfig {
+#[derive(Serialize, Deserialize, Debug)]
+struct TyrArduinoConfig {
     cli_path: String,
+}
+
+fn get_default_config_path() -> PathBuf {
+    let mut config_path = home::home_dir().expect("home_dir() returned an invalid value");
+
+    config_path.push(".tyr/config.toml");
+
+    config_path
+}
+
+#[test]
+fn test_get_default_config_path() {
+    let mut config_path = get_default_config_path();
+    config_path.pop();
+    assert!(config_path.exists(), "Config path does not exist");
+}
+
+fn maybe_read_config(config_path: PathBuf) -> Result<TyrConfig> {
+
+    let mut tyr_config = TyrConfig {
+        bootstrap: TyrBootstrapConfig {
+            arduino: TyrArduinoConfig {
+                cli_path: String::from("arduino-cli")
+            }
+        }
+    };
+
+    if config_path.exists() {
+        tyr_config = TyrConfig::from_config_file(config_path)?;
+    } else {
+        println!("Config file does not exist, creating it");
+        let mut config_dir = config_path.clone();
+        config_dir.pop();
+        std::fs::create_dir_all(config_dir)?;
+        std::fs::write(config_path, toml::to_string(&tyr_config)?)?;
+    }
+
+    Ok(tyr_config)
+}
+
+#[test]
+fn test_maybe_read_config() {
+    let mut config_path = get_default_config_path();
+
+    let config = maybe_read_config(config_path).unwrap();
+
+    assert!(config.bootstrap.arduino.cli_path.as_str().contains("arduino-cli"));
 }
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = Cli::parse();
 
-    let mut config_path = home::home_dir().expect("home_dir() returned an invalid value");
-
-    config_path.push(".tyr/config.toml");
-
-    if let Some(config_path) = args.config.as_deref() {
-        println!("Value for config: {}", config_path.display());
-    }
-
-    println!("Using config file: {}", config_path.display());
-
-    let config = Config::from_config_file(config_path)?;
+    let config = maybe_read_config(get_default_config_path())?;
 
     println!("Config: {:?}", config);
 

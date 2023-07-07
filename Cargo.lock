@@ -733,6 +733,7 @@ dependencies = [
  "serde",
  "tokio 1.29.1",
  "tokio-compat",
+ "toml",
 ]
 
 [[package]]
