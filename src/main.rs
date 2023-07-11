@@ -57,6 +57,8 @@ fn get_default_config_path() -> PathBuf {
 
     config_path.push(".tyr");
 
+    std::fs::create_dir_all(config_path.clone()).expect("Failed to create config directory");
+
     config_path.push("config.toml");
 
     config_path
