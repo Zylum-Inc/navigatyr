@@ -67,7 +67,11 @@ fn test_get_default_config_path() {
     let mut config_path = get_default_config_path();
     println!("Config path: {:?}", config_path);
     config_path.pop();
-    assert!(config_path.exists(), "Config path does not exist");
+    assert!(
+        config_path.exists(),
+        "Config path: {:?} does not exist",
+        config_path
+    );
 }
 
 fn maybe_read_config(config_path: PathBuf) -> Result<TyrConfig> {
