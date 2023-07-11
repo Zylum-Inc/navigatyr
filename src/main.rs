@@ -1,15 +1,15 @@
 #![allow(unused)]
 
-use home::home_dir;
-use std::io::{BufRead, BufReader};
-use std::path::{Path, PathBuf};
-use clap::{Parser, Subcommand};
 use anyhow::{Context, Result};
 use arduino_cli_client::commands::arduino_core_client::ArduinoCoreClient;
 use arduino_cli_client::commands::{BoardListReq, InitReq};
 use clap::builder::Str;
+use clap::{Parser, Subcommand};
 use config_file::FromConfigFile;
+use home::home_dir;
 use serde::{Deserialize, Serialize};
+use std::io::{BufRead, BufReader};
+use std::path::{Path, PathBuf};
 
 /// Search for a pattern in a file and display the lines that contain it.
 #[derive(Parser)]
@@ -28,7 +28,7 @@ enum TyrCommands {
         family: String,
         #[command(subcommand)]
         command: TyrBootstrapCommands,
-    }
+    },
 }
 
 #[derive(Subcommand, Debug)]
@@ -55,7 +55,9 @@ struct TyrArduinoConfig {
 fn get_default_config_path() -> PathBuf {
     let mut config_path = home::home_dir().expect("home_dir() returned an invalid value");
 
-    config_path.push(".tyr/config.toml");
+    config_path.push(".tyr");
+
+    config_path.push("config.toml");
 
     config_path
 }
@@ -69,13 +71,12 @@ fn test_get_default_config_path() {
 }
 
 fn maybe_read_config(config_path: PathBuf) -> Result<TyrConfig> {
-
     let mut tyr_config = TyrConfig {
         bootstrap: TyrBootstrapConfig {
             arduino: TyrArduinoConfig {
-                cli_path: String::from("arduino-cli")
-            }
-        }
+                cli_path: String::from("arduino-cli"),
+            },
+        },
     };
 
     if config_path.exists() {
@@ -97,7 +98,12 @@ fn test_maybe_read_config() {
 
     let config = maybe_read_config(config_path).unwrap();
 
-    assert!(config.bootstrap.arduino.cli_path.as_str().contains("arduino-cli"));
+    assert!(config
+        .bootstrap
+        .arduino
+        .cli_path
+        .as_str()
+        .contains("arduino-cli"));
 }
 
 #[tokio::main]
@@ -111,7 +117,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     match args.command {
         TyrCommands::Bootstrap { family, command } => {
             println!("Bootstrapping {} subcommand {:?}", family, command);
-
 
             // let mut client = ArduinoCoreClient::connect("http://localhost:50051").await?;
             //
@@ -134,7 +139,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             //     .into_inner();
             //
             // print!("Boards: {:?}", resp_boards.ports);
-
         }
     }
 
