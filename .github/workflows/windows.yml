@@ -73,7 +73,10 @@ jobs:
 
       - name: Run wix
         shell: cmd
-        run: cargo wix --all -- -D warnings
+        run: | 
+          cargo install cargo-wix
+          cargo wix init
+          cargo wix
 
       - name: Copy artifacts
         uses: actions/upload-artifact@v2
