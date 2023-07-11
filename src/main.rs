@@ -63,6 +63,7 @@ fn get_default_config_path() -> PathBuf {
 #[test]
 fn test_get_default_config_path() {
     let mut config_path = get_default_config_path();
+    println!("Config path: {:?}", config_path);
     config_path.pop();
     assert!(config_path.exists(), "Config path does not exist");
 }

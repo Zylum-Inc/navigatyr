@@ -93,6 +93,4 @@ jobs:
             target/${{ matrix.target }}/wix/release/*.wixpdb
             target/${{ matrix.target }}/wix/debug/*.wixobj
             target/${{ matrix.target }}/wix/release/*.wixobj
-              
-              
             
