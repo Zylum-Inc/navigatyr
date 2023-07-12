@@ -71,23 +71,23 @@ jobs:
         shell: cmd
         run: cargo clippy --all -- -D warnings
 
-package:
-  runs-on: windows-latest
-  env:
-    RUSTFLAGS: '-C target-feature=+crt-static'
-  name: Windows
-  steps:
-  - uses: actions/checkout@v2
-  - uses: actions-rs/toolchain@v1
-    with:
-      toolchain: stable
-  - uses: actions-rs/install@v0.1
-    with:
-      crate: cargo-wix
-      version: latest
-  - run: cargo wix -v --nocapture -o .
-  - name: Upload MSI Artifact
-    uses: actions/upload-artifact@v2
-    with:
-      name: windows
-      path: ./*.msi                
+  package:
+    runs-on: windows-latest
+    env:
+      RUSTFLAGS: '-C target-feature=+crt-static'
+    name: Windows
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+    - uses: actions-rs/install@v0.1
+      with:
+        crate: cargo-wix
+        version: latest
+    - run: cargo wix -v --nocapture -o .
+    - name: Upload MSI Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: windows
+        path: ./*.msi                
