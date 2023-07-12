@@ -71,29 +71,23 @@ jobs:
         shell: cmd
         run: cargo clippy --all -- -D warnings
 
-      - name: Run wix
-        shell: cmd
-        run: | 
-          cargo install cargo-wix
-          cargo wix init
-          cargo wix
-
-      - name: Copy artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: artifacts
-          path: |
-            target/debug
-            target/release
-            target/${{ matrix.target }}/debug
-            target/${{ matrix.target }}/release
-            target/${{ matrix.target }}/wix
-            target/${{ matrix.target }}/wix/debug
-            target/${{ matrix.target }}/wix/release
-            target/${{ matrix.target }}/wix/debug/*.msi
-            target/${{ matrix.target }}/wix/release/*.msi
-            target/${{ matrix.target }}/wix/debug/*.wixpdb
-            target/${{ matrix.target }}/wix/release/*.wixpdb
-            target/${{ matrix.target }}/wix/debug/*.wixobj
-            target/${{ matrix.target }}/wix/release/*.wixobj
-            
+package:
+  runs-on: windows-latest
+  env:
+    RUSTFLAGS: '-C target-feature=+crt-static'
+  name: Windows
+  steps:
+  - uses: actions/checkout@v2
+  - uses: actions-rs/toolchain@v1
+    with:
+      toolchain: stable
+  - uses: actions-rs/install@v0.1
+    with:
+      crate: cargo-wix
+      version: latest
+  - run: cargo wix -v --nocapture -o .
+  - name: Upload MSI Artifact
+    uses: actions/upload-artifact@v2
+    with:
+      name: windows
+      path: ./*.msi                
