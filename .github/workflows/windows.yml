@@ -86,9 +86,11 @@ jobs:
       with:
         crate: cargo-wix
         version: latest
-    - run: | 
-      cargo wix init
-      cargo wix -v --nocapture -o .
+    - name: Build MSI Artifact
+      shell: cmd
+      run: | 
+        cargo wix init
+        cargo wix -v --nocapture -o .
     - name: Upload MSI Artifact
       uses: actions/upload-artifact@v2
       with:
