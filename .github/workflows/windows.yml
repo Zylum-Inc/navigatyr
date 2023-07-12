@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  test:
+  buildandtest:
     runs-on: windows-latest
     name: (${{ matrix.target }}, ${{ matrix.cfg_release_channel }})
     env:
@@ -72,6 +72,7 @@ jobs:
         run: cargo clippy --all -- -D warnings
 
   package:
+    needs: buildandtest
     runs-on: windows-latest
     env:
       RUSTFLAGS: '-C target-feature=+crt-static'
@@ -85,7 +86,9 @@ jobs:
       with:
         crate: cargo-wix
         version: latest
-    - run: cargo wix -v --nocapture -o .
+    - run: | 
+      cargo wix init
+      cargo wix -v --nocapture -o .
     - name: Upload MSI Artifact
       uses: actions/upload-artifact@v2
       with:
