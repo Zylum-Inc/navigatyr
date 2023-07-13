@@ -1,6 +1,6 @@
 #![allow(unused)]
 
-use anyhow::{Context, Result};
+use anyhow::{Context, Error, Result};
 use arduino_cli_client::commands::arduino_core_client::ArduinoCoreClient;
 use arduino_cli_client::commands::{BoardListReq, InitReq};
 use clap::builder::Str;
@@ -98,6 +98,37 @@ fn maybe_read_config(config_path: PathBuf) -> Result<TyrConfig> {
     Ok(tyr_config)
 }
 
+
+fn check_arduino_cli_install() -> Result<()> {
+
+    // Check for arduino-cli
+    // If it doesn't exist, install it
+    let output = if cfg!(target_os = "windows") {
+        std::process::Command::new("cmd")
+            .args(["/C", "arduino-cli --version"])
+            .output()
+            .expect("failed to execute process")
+    } else {
+        std::process::Command::new("sh")
+            .arg("-c")
+            .arg("arduino-cli --version")
+            .output()
+            .expect("failed to execute process")
+    };
+
+    if !output.status.success() {
+        anyhow::bail!("arduino-cli not found, please download and install it from https://arduino.github.io/arduino-cli/0.33/installation/");
+    }
+
+    Ok(())
+}
+
+#[test]
+fn test_check_arduino_cli_install() {
+    let result = check_arduino_cli_install();
+    assert!(result.is_err())
+}
+
 #[test]
 fn test_maybe_read_config() {
     let mut config_path = get_default_config_path();
@@ -124,27 +155,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         TyrCommands::Bootstrap { family, command } => {
             println!("Bootstrapping {} subcommand {:?}", family, command);
 
-            // let mut client = ArduinoCoreClient::connect("http://localhost:50051").await?;
-            //
-            // // Start a new instance of the Arduino Core Service
-            // let mut init_stream = client
-            //     .init(InitReq {
-            //         library_manager_only: false,
-            //     })
-            //     .await?
-            //     .into_inner();
-            //
-            // let resp_instance = init_stream.message().await?.expect("Failed to init");
-            //
-            // // List the boards currently connected to the computer.
-            // let resp_boards = client
-            //     .board_list(BoardListReq {
-            //         instance: resp_instance.instance,
-            //     })
-            //     .await?
-            //     .into_inner();
-            //
-            // print!("Boards: {:?}", resp_boards.ports);
+            check_arduino_cli_install()?;
+
         }
     }
 
