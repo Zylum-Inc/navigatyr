@@ -4,12 +4,14 @@ use anyhow::{Context, Error, Result};
 use arduino_cli_client::commands::arduino_core_client::ArduinoCoreClient;
 use arduino_cli_client::commands::{BoardListReq, InitReq};
 use clap::builder::Str;
-use clap::{Parser, Subcommand};
+use clap::{Parser, Subcommand, ValueEnum};
 use config_file::FromConfigFile;
 use home::home_dir;
 use serde::{Deserialize, Serialize};
+use std::io::{self, Write};
 use std::io::{BufRead, BufReader};
 use std::path::{Path, PathBuf};
+use strum_macros::{Display, EnumString};
 
 /// Search for a pattern in a file and display the lines that contain it.
 #[derive(Parser)]
@@ -23,22 +25,84 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum TyrCommands {
+    /// Get the currently set family
+    GetFamily,
+    /// Set the family of devices to work with
+    SetFamily {
+        #[arg(value_enum)]
+        family: TyrFamilies,
+    },
     /// Sub commands related to the boostrap phase of the firmware lifecycle
     Bootstrap {
-        family: String,
         #[command(subcommand)]
         command: TyrBootstrapCommands,
     },
+    /// Sub commands related to the provisioning phase of the firmware lifecycle
+    Provision {
+        #[command(subcommand)]
+        command: TyrProvisionCommands,
+    },
+    /// Sub commands related to the manufactring phase of the firmware lifecycle
+    Manufacture {
+        #[command(subcommand)]
+        command: TyrManufactureCommands,
+    },
+}
+
+#[derive(Serialize, Deserialize, EnumString, Debug, Clone)]
+enum TyrFamilies {
+    #[strum(serialize = "arduino")]
+    Arduino,
+    // #[strum(serialize = "particle")]
+    // Particle,
 }
 
 #[derive(Subcommand, Debug)]
 enum TyrBootstrapCommands {
+    /// Show devices
+    ListDevices,
+    /// Create a new device
+    CreateDevice,
+}
+
+#[derive(Subcommand, Debug)]
+enum TyrProvisionCommands {
+    /// Show devices
+    ListDevices,
+    /// Provision a new network
+    AddNetwork {
+        /// Device Service Tag
+        device_service_tag: String,
+        /// The network name
+        network_name: String,
+    },
+}
+
+#[derive(Subcommand, Debug)]
+enum TyrManufactureCommands {
+    /// Show available device images
+    ListImages,
+    /// Create a new firmware image
+    CreateImage {
+        /// Device Service Tag
+        device_service_tag: String,
+        /// Semantic Version String
+        fimware_image_version: String,
+    },
     /// Show connected devices
     ListDevices,
+    /// Flash a device
+    FlashDevice {
+        /// Device Service Tag
+        device_service_tag: String,
+        /// Firmware Image Version
+        fimware_image_version: String,
+    },
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 struct TyrConfig {
+    family: TyrFamilies,
     bootstrap: TyrBootstrapConfig,
 }
 
@@ -78,12 +142,15 @@ fn test_get_default_config_path() {
 
 fn maybe_read_config(config_path: PathBuf) -> Result<TyrConfig> {
     let mut tyr_config = TyrConfig {
+        family: TyrFamilies::Arduino,
         bootstrap: TyrBootstrapConfig {
             arduino: TyrArduinoConfig {
                 cli_path: String::from("arduino-cli"),
             },
         },
     };
+
+    println!("Config path: {:?}", config_path);
 
     if config_path.exists() {
         tyr_config = TyrConfig::from_config_file(config_path)?;
@@ -98,27 +165,43 @@ fn maybe_read_config(config_path: PathBuf) -> Result<TyrConfig> {
     Ok(tyr_config)
 }
 
+fn process_command(command: &[&str], error_msg: &str) -> Result<()> {
 
-fn check_arduino_cli_install() -> Result<()> {
+    println!("Running command: {:?}", command);
 
-    // Check for arduino-cli
-    // If it doesn't exist, install it
     let output = if cfg!(target_os = "windows") {
         std::process::Command::new("cmd")
-            .args(["/C", "arduino-cli --version"])
+            .arg("/C")
+            .args(command)
             .output()
             .expect("failed to execute process")
     } else {
         std::process::Command::new("sh")
             .arg("-c")
-            .arg("arduino-cli --version")
+            .arg(command.join(" "))
             .output()
             .expect("failed to execute process")
     };
 
     if !output.status.success() {
-        anyhow::bail!("arduino-cli not found, please download and install it from https://arduino.github.io/arduino-cli/0.33/installation/");
+        println!("{}", error_msg);
+        std::process::exit(1);
+    } else {
+        println!("Command output: {}", String::from_utf8_lossy(&output.stdout));
     }
+
+
+
+    Ok(())
+}
+
+
+fn check_arduino_cli_install() -> Result<()> {
+
+    // Check for arduino-cli
+    // If it doesn't exist, throw an error
+    process_command(&["arduino-cli", "version"],
+                    "arduino-cli not found, please download and install it from https://arduino.github.io/arduino-cli/0.33/installation/");
 
     Ok(())
 }
@@ -152,12 +235,45 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("Config: {:?}", config);
 
     match args.command {
-        TyrCommands::Bootstrap { family, command } => {
-            println!("Bootstrapping {} subcommand {:?}", family, command);
-
+        TyrCommands::GetFamily => {
+            println!("Family: {:?}", config.family);
+        },
+        TyrCommands::SetFamily { family } => {
+            println!("Setting family to {:?}", family);
+        },
+        TyrCommands::Bootstrap { command } => {
+            println!("Bootstrapping {:?} subcommand {:?}", config.family, command);
+        },
+        TyrCommands::Provision { command } => {
+            println!("Provisioning {:?} subcommand {:?}", config.family, command);
+        },
+        TyrCommands::Manufacture { command } => {
+            println!("Manufacturing {:?} subcommand {:?}", config.family, command);
             check_arduino_cli_install()?;
 
-        }
+            match command {
+                TyrManufactureCommands::ListImages => {
+                    let output = std::process::Command::new("sh")
+                        .arg("-c")
+                        .arg("arduino-cli core list")
+                        .output()
+                        .expect("failed to execute process");
+
+                    println!("Output: {:?}", output);
+                },
+                TyrManufactureCommands::CreateImage { device_service_tag, fimware_image_version } => {
+                    println!("Creating image for device {:?} with version {:?}", device_service_tag, fimware_image_version);
+                },
+                TyrManufactureCommands::ListDevices => {
+                    println!("Listing devices");
+                    process_command(&["arduino-cli", "board", "list"],
+                                    "No devices found, please connect a device and try again");
+                },
+                TyrManufactureCommands::FlashDevice { device_service_tag, fimware_image_version } => {
+                    println!("Flashing device {:?} with version {:?}", device_service_tag, fimware_image_version);
+                },
+            }
+        },
     }
 
     Ok(())
