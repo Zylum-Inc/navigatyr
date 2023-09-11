@@ -33,7 +33,7 @@ pub fn compile(
 
     println!("Image will be stored in {:?}", image_path);
 
-    let mut cpp_extra_flags = String::from("\"compiler.cpp.extra_flags=-DZAL_APPEUI_BIG_ENDIAN=");
+    let mut cpp_extra_flags = String::from("compiler.cpp.extra_flags=-DZAL_APPEUI_BIG_ENDIAN=");
     cpp_extra_flags.push_str(appeui);
 
 
@@ -44,12 +44,13 @@ pub fn compile(
     cpp_extra_flags.push_str(" -DZAL_APPKEY_BIG_ENDIAN=");
     //
     cpp_extra_flags.push_str(appkey);
-    cpp_extra_flags.push_str(" \"");
+//    cpp_extra_flags.push_str(""");
 
     tyr_utils::process_command(&["arduino-cli", "compile", "-e", "-b", &tyr_config::get_arduino_board_type().unwrap(),
         "--build-property", &cpp_extra_flags, "--output-dir", &image_path.as_path().display().to_string(), &tyr_config::get_arduino_sketch_path().unwrap()],
                                "Failed to compile image");
 
+    // tyr_utils::process_command(&["echo", cpp_extra_flags.as_str()], "Failed to compile image");
 
     Ok(())
 }
