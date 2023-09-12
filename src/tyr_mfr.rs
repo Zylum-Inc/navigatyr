@@ -12,18 +12,6 @@ pub enum TyrManufactureCommands {
     CreateImage {
         /// Device ID
         device_id: String,
-        /// Semantic Version String
-        #[arg(short = 'v', long)]
-        fimware_image_version: Option<String>,
-        /// DevEUI
-        #[arg(short = 'd', long)]
-        deveui: Option<String>,
-        /// AppEUI
-        #[arg(short = 'a', long)]
-        appeui: Option<String>,
-        /// AppKey
-        #[arg(short = 'k', long)]
-        appkey: Option<String>,
     },
     /// Upload Image to S3
     UploadImage {
@@ -49,34 +37,10 @@ pub fn handle_manufacture_commands(command: TyrManufactureCommands) -> Result<()
         TyrManufactureCommands::ListImages => {
             Ok(())
         },
-        TyrManufactureCommands::CreateImage {
-            device_id, fimware_image_version,
-            deveui, appeui, appkey
-        } => {
-            println!("Creating image for device {:?} with deveui {:?}, appeui {:?} and appkey {:?}", device_id, deveui, appeui, appkey);
+        TyrManufactureCommands::CreateImage { device_id} => {
+            println!("Creating image for device {:?} ", device_id);
 
-            if !(deveui.is_some() && appeui.is_some() && appkey.is_some()) {
-                println!("deveui, appeui and appkey must be specified");
-                std::process::exit(1);
-            }
-
-            if deveui.clone().expect("deveui should non NONE").len() != 16 {
-                println!("Invalid deveui {:?}, length must be 16", deveui);
-                std::process::exit(1);
-            }
-            if appeui.clone().expect("appeui should be non NONE").len() != 16 {
-                println!("Invalid appeui {:?}, length must be 16", appeui);
-                std::process::exit(1);
-            }
-            if appkey.clone().expect("appkey should be non NONE").len() != 32 {
-                println!("Invalid appkey {:?}, length must be 32", appkey);
-                std::process::exit(1);
-            }
-
-            tyr_arduino::compile(&device_id,
-                                 &String::from(&deveui.unwrap()).as_str(),
-                                 &String::from(&appeui.unwrap()).as_str(),
-                                 &String::from(&appkey.unwrap()).as_str())?;
+            tyr_arduino::compile(&device_id)?;
 
             Ok(())
 

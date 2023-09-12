@@ -1,0 +1,45 @@
+%Adafruit Feather M0 Configuration
+---
+DeviceType:
+  name: Feather M0
+  platform: samd21
+  board: adafruit_feather_m0
+
+Device:
+  name: Sidd's Feather M0 3
+  id: 216fa23d-8fda-4a17-8efa-93d45796dcf3
+  service-tag: 11106CE4
+
+CompileTimeConfigPrefix: compiler.cpp.extra_flags=
+
+DeviceConfig:
+  -
+    name: version_string
+    value: 0.0.11
+    compile_time_prefix: -DZAL_VERSION_STRING=
+  -
+    name: min_tx_interval
+    value: !str 10
+    compile_time_prefix: -DZAL_MIN_TX_INTERVAL=
+  -
+    name: max_tx_interval
+    value: !str 3600
+    compile_time_prefix: -DZAL_MAX_TX_INTERVAL=
+
+Networks:
+  -
+    network_type: lorawan
+    server:
+    config:
+      -
+        name: dev_eui
+        value: !str 4dc5caaf631268d4
+        compile_time_prefix: -DZAL_DEVEUI_BIG_ENDIAN=
+      -
+        name: app_eui
+        value: !str 4dc5caaf631268d4
+        compile_time_prefix: -DZAL_APPEUI_BIG_ENDIAN=
+      -
+        name: app_key
+        value: !str 04547C77D0A2DD6A19EF5C6D3AC41AB3
+        compile_time_prefix: -DZAL_APPKEY_BIG_ENDIAN=
