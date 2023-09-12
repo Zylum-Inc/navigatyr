@@ -104,11 +104,11 @@ pub fn compile(
 
     println!("Image will be stored in {:?}", image_path);
 
-    let mut config_file_path = image_path.clone();
+    let mut device_config_file_path = image_path.clone();
 
-    config_file_path.push("config.yaml");
+    device_config_file_path.push("config.yaml");
 
-    let cpp_extra_flags = get_cpp_extra_flags(device_id, config_file_path.as_path())?;
+    let cpp_extra_flags = get_cpp_extra_flags(device_id, device_config_file_path.as_path())?;
 
     tyr_utils::process_command(&["arduino-cli", "compile", "-e", "-b", &tyr_config::get_arduino_board_type().unwrap(),
         "--build-property", &cpp_extra_flags, "--output-dir", &image_path.as_path().display().to_string(), &tyr_config::get_arduino_sketch_path().unwrap()],
