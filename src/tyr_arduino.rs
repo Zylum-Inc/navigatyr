@@ -59,7 +59,7 @@ pub fn get_cpp_extra_flags(device_id: &str, config_file: &Path) -> Result<String
                 .unwrap(),
         );
         cpp_extra_flags.push_str(doc["DeviceConfig"][i]["value"].as_str().unwrap());
-        cpp_extra_flags.push_str(" ");
+        cpp_extra_flags.push(' ');
     }
 
     let num_network_config_elements = doc["Networks"][0]["config"].as_vec().unwrap().len();
@@ -76,12 +76,12 @@ pub fn get_cpp_extra_flags(device_id: &str, config_file: &Path) -> Result<String
                 .unwrap(),
         );
         cpp_extra_flags.push_str(doc["Networks"][0]["config"][j]["value"].as_str().unwrap());
-        cpp_extra_flags.push_str(" ");
+        cpp_extra_flags.push(' ');
     }
 
     println!("cpp_extra_flags: {:?}", cpp_extra_flags);
 
-    return Ok(cpp_extra_flags);
+    Ok(cpp_extra_flags)
 }
 
 #[test]

@@ -101,20 +101,20 @@ pub fn set_config(
     arduino_devices_path: Option<String>,
 ) -> Result<(), Error> {
     let mut config_path = get_default_config_path();
-    let mut config = maybe_read_config(config_path.clone())?;
+    let mut config = maybe_read_config(config_path)?;
 
     config.family = family;
-    if arduino_board_type.is_some() {
-        println!("Setting arduino board type to {:?}", arduino_board_type);
-        config.arduino.board_type = arduino_board_type.unwrap();
+    if let Some(value) = arduino_board_type {
+        println!("Setting arduino board type to {:?}", value);
+        config.arduino.board_type = value;
     }
-    if arduino_sketch_path.is_some() {
-        println!("Setting arduino sketch path to {:?}", arduino_sketch_path);
-        config.arduino.sketch_path = arduino_sketch_path.unwrap();
+    if let Some(value) = arduino_sketch_path {
+        println!("Setting arduino sketch path to {:?}", value);
+        config.arduino.sketch_path = value;
     }
-    if arduino_devices_path.is_some() {
-        println!("Setting arduino devices path to {:?}", arduino_devices_path);
-        config.arduino.devices_path = arduino_devices_path.unwrap();
+    if let Some(value) = arduino_devices_path {
+        println!("Setting arduino devices path to {:?}", value);
+        config.arduino.devices_path = value;
     }
     write_config(get_default_config_path(), config)?;
 
