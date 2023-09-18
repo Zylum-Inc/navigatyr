@@ -1,8 +1,8 @@
+use anyhow::Error;
+use config_file::FromConfigFile;
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 use strum_macros::{Display, EnumString};
-use anyhow::Error;
-use config_file::FromConfigFile;
 
 #[derive(Serialize, Deserialize, EnumString, Debug, Clone)]
 pub enum TyrFamilies {
@@ -28,8 +28,6 @@ pub struct TyrArduinoConfig {
     #[serde(default)]
     devices_path: String,
 }
-
-
 
 pub fn get_default_config_path() -> PathBuf {
     let mut config_path = home::home_dir().expect("home_dir() returned an invalid value");
@@ -93,11 +91,7 @@ fn test_maybe_read_config() {
 
     let config = maybe_read_config(config_path).unwrap();
 
-    assert!(config
-        .arduino
-        .cli_path
-        .as_str()
-        .contains("arduino-cli"));
+    assert!(config.arduino.cli_path.as_str().contains("arduino-cli"));
 }
 
 pub fn set_config(
@@ -131,11 +125,7 @@ pub fn set_config(
 fn test_set_config() {
     let config = maybe_read_config(get_default_config_path()).unwrap();
 
-    assert!(config
-        .arduino
-        .cli_path
-        .as_str()
-        .contains("arduino-cli"));
+    assert!(config.arduino.cli_path.as_str().contains("arduino-cli"));
 
     set_config(
         TyrFamilies::Arduino,

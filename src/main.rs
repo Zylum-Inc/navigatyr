@@ -12,15 +12,15 @@ use std::path::{Path, PathBuf};
 use strum_macros::{Display, EnumString};
 use toml::value::Array;
 
-pub mod tyr_config;
-pub mod tyr_utils;
-pub mod tyr_mfr;
 pub mod tyr_arduino;
+pub mod tyr_config;
+pub mod tyr_mfr;
+pub mod tyr_utils;
 
-use crate::tyr_config::{TyrArduinoConfig, TyrConfig, TyrFamilies};
 use crate::tyr_config::{get_config, set_config};
-use crate::tyr_utils::{process_command};
-use crate::tyr_mfr::{TyrManufactureCommands};
+use crate::tyr_config::{TyrArduinoConfig, TyrConfig, TyrFamilies};
+use crate::tyr_mfr::TyrManufactureCommands;
+use crate::tyr_utils::process_command;
 
 /// Search for a pattern in a file and display the lines that contain it.
 #[derive(Parser)]
@@ -64,7 +64,6 @@ enum TyrCommands {
     },
 }
 
-
 #[derive(Subcommand, Debug)]
 enum TyrBootstrapCommands {
     /// Show devices
@@ -86,11 +85,6 @@ enum TyrProvisionCommands {
     },
 }
 
-
-
-
-
-
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = Cli::parse();
@@ -100,22 +94,32 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     match args.command {
         TyrCommands::GetConfig => {
             println!("Config: {:?}", config);
-        },
-        TyrCommands::SetConfig { family, arduino_board_type, arduino_sketch_path, arduino_devices_path } => {
+        }
+        TyrCommands::SetConfig {
+            family,
+            arduino_board_type,
+            arduino_sketch_path,
+            arduino_devices_path,
+        } => {
             println!("Setting family to {:?}", family);
-            tyr_config::set_config(family, arduino_board_type, arduino_sketch_path, arduino_devices_path)?;
-        },
+            tyr_config::set_config(
+                family,
+                arduino_board_type,
+                arduino_sketch_path,
+                arduino_devices_path,
+            )?;
+        }
         TyrCommands::Bootstrap { command } => {
             println!("Bootstrapping subcommand {:?}", command);
-        },
+        }
         TyrCommands::Provision { command } => {
-            println!("Provisioning subcommand {:?}",  command);
-        },
+            println!("Provisioning subcommand {:?}", command);
+        }
         TyrCommands::Manufacture { command } => {
             println!("Manufacturing subcommand {:?}", command);
             tyr_arduino::check_arduino_cli_install()?;
             tyr_mfr::handle_manufacture_commands(command)?;
-        },
+        }
     }
 
     Ok(())

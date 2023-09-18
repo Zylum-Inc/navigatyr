@@ -1,8 +1,8 @@
-use clap::{Parser, Subcommand, ValueEnum};
 use anyhow::Error;
+use clap::{Parser, Subcommand, ValueEnum};
 
-use crate::tyr_utils::{process_command};
 use crate::tyr_arduino;
+use crate::tyr_utils::process_command;
 
 #[derive(Subcommand, Debug)]
 pub enum TyrManufactureCommands {
@@ -31,33 +31,43 @@ pub enum TyrManufactureCommands {
     },
 }
 
-
 pub fn handle_manufacture_commands(command: TyrManufactureCommands) -> Result<(), Error> {
     match command {
-        TyrManufactureCommands::ListImages => {
-            Ok(())
-        },
-        TyrManufactureCommands::CreateImage { device_id} => {
+        TyrManufactureCommands::ListImages => Ok(()),
+        TyrManufactureCommands::CreateImage { device_id } => {
             println!("Creating image for device {:?} ", device_id);
 
             tyr_arduino::compile(&device_id)?;
 
             Ok(())
-
-        },
+        }
         TyrManufactureCommands::ListDevices => {
             println!("Listing devices");
-            process_command(&["arduino-cli", "board", "list"],
-                                       "No devices found, please connect a device and try again");
+            process_command(
+                &["arduino-cli", "board", "list"],
+                "No devices found, please connect a device and try again",
+            );
             Ok(())
-        },
-        TyrManufactureCommands::FlashDevice { device_service_tag, fimware_image_version } => {
-            println!("Flashing device {:?} with version {:?}", device_service_tag, fimware_image_version);
+        }
+        TyrManufactureCommands::FlashDevice {
+            device_service_tag,
+            fimware_image_version,
+        } => {
+            println!(
+                "Flashing device {:?} with version {:?}",
+                device_service_tag, fimware_image_version
+            );
             Ok(())
-        },
-        TyrManufactureCommands::UploadImage { device_service_tag, fimware_image_version } => {
-            println!("Uploading image {:?} with version {:?}", device_service_tag, fimware_image_version);
+        }
+        TyrManufactureCommands::UploadImage {
+            device_service_tag,
+            fimware_image_version,
+        } => {
+            println!(
+                "Uploading image {:?} with version {:?}",
+                device_service_tag, fimware_image_version
+            );
             Ok(())
-        },
+        }
     }
 }

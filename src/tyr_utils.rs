@@ -1,7 +1,6 @@
 use anyhow::Error;
 
 pub fn process_command(command: &[&str], error_msg: &str) -> Result<(), Error> {
-
     println!("Running command: {:?}", command);
 
     let output = if cfg!(target_os = "windows") {
@@ -20,11 +19,17 @@ pub fn process_command(command: &[&str], error_msg: &str) -> Result<(), Error> {
 
     if !output.status.success() {
         println!("Command Failed: {}", error_msg);
-        println!("Command output: {}", String::from_utf8_lossy(&output.stdout));
+        println!(
+            "Command output: {}",
+            String::from_utf8_lossy(&output.stdout)
+        );
         println!("Command error: {}", String::from_utf8_lossy(&output.stderr));
         std::process::exit(1);
     } else {
-        println!("Command output: {}", String::from_utf8_lossy(&output.stdout));
+        println!(
+            "Command output: {}",
+            String::from_utf8_lossy(&output.stdout)
+        );
         println!("Command error: {}", String::from_utf8_lossy(&output.stderr));
     }
 
