@@ -51,7 +51,7 @@ jobs:
           Invoke-WebRequest https://github.com/arduino/arduino-cli/releases/download/0.34.1/arduino-cli_0.34.1_Windows_64bit.msi -OutFile $env:USERPROFILE\Downloads\arduino-cli-0.34.1.msi
           pwd
           dir $env:USERPROFILE\Downloads
-          msiexec.exe /i $env:USERPROFILE\Downloads\arduino-cli-0.34.1.msi /passive
+          Start-Process msiexec.exe "/i $env:USERPROFILE\Downloads\arduino-cli-0.34.1.msi /passive"
           del $env:USERPROFILE\Downloads\arduino-cli-0.34.1.msi
         shell: powershell
 
