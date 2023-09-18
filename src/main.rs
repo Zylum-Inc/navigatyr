@@ -1,8 +1,6 @@
 #![allow(unused)]
 
 use anyhow::{Context, Error, Result};
-use arduino_cli_client::commands::arduino_core_client::ArduinoCoreClient;
-use arduino_cli_client::commands::{BoardListReq, InitReq};
 use clap::builder::Str;
 use clap::{Parser, Subcommand, ValueEnum};
 use config_file::FromConfigFile;
