@@ -53,16 +53,17 @@ jobs:
           dir $env:USERPROFILE\Downloads
           Start-Process msiexec.exe "/i $env:USERPROFILE\Downloads\arduino-cli-0.34.1.msi /passive /L*V install.log" -Wait
           cat install.log
-          echo "C:\Program Files\Arduino CLI" >> $GITHUB_PATH
+          $env:GITHUB_PATH
+          $env:GITHUB_PATH = 'C:\Program Files\Arduino CLI' + $env:GITHUB_PATH
           del $env:USERPROFILE\Downloads\arduino-cli-0.34.1.msi
           del install.log
         shell: powershell
-        
+
       - name: Test the arduino-cli
         run: |
           echo "$PATH"
           arduino-cli version
-        shell: powershell
+        shell: cmd
 
       - name: Add mingw32 to path for i686-gnu
         run: |
