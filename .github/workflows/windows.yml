@@ -49,8 +49,8 @@ jobs:
           # Disable the download progress bar which can cause perf issues
           $ProgressPreference = "SilentlyContinue"
           Invoke-WebRequest https://downloads.arduino.cc/arduino-cli/arduino-cli_latest_Windows_64bit.msi -OutFile arduino-cli_latest_Windows_64bit.msi
-          msiexec.exe /i .\arduino-cli.msi /qn
-          del arduino-cli.msi
+          msiexec.exe /i .\arduino-cli_latest_Windows_64bit.msi /qn
+          del arduino-cli_latest_Windows_64bit.msi
         shell: powershell
 
       - name: Add mingw32 to path for i686-gnu
