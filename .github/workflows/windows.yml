@@ -44,6 +44,15 @@ jobs:
           rustup target add ${{ matrix.target }}
         shell: powershell
 
+      - name: Install the arduino-cli
+        run: |
+          # Disable the download progress bar which can cause perf issues
+          $ProgressPreference = "SilentlyContinue"
+          Invoke-WebRequest https://downloads.arduino.cc/arduino-cli/arduino-cli_latest_Windows_64bit.msi -OutFile arduino-cli_latest_Windows_64bit.msi
+          msiexec.exe /i .\arduino-cli.msi /qn
+          del arduino-cli.msi
+        shell: powershell
+
       - name: Add mingw32 to path for i686-gnu
         run: |
           echo "C:\msys64\mingw32\bin" >> $GITHUB_PATH
