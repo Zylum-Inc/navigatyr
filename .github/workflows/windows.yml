@@ -59,11 +59,10 @@ jobs:
           del install.log
         shell: powershell
 
-      - name: Test the arduino-cli
+      - name: Add the arduino-cli path
         run: |
-          echo "$PATH"
-          arduino-cli version
-        shell: cmd
+          echo "C:\Program Files\Arduino CLI" >> $GITHUB_PATH
+        shell: bash
 
       - name: Add mingw32 to path for i686-gnu
         run: |
