@@ -53,12 +53,14 @@ jobs:
           dir $env:USERPROFILE\Downloads
           Start-Process msiexec.exe "/i $env:USERPROFILE\Downloads\arduino-cli-0.34.1.msi /passive /L*V install.log" -Wait
           cat install.log
+          echo " C:\Program Files\Arduino CLI" >> $GITHUB_PATH
           del $env:USERPROFILE\Downloads\arduino-cli-0.34.1.msi
           del install.log
         shell: powershell
         
       - name: Test the arduino-cli
         run: |
+          echo $GITHUB_PATH
           arduino-cli version
         shell: powershell
 
