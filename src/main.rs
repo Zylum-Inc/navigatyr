@@ -5,6 +5,7 @@ use clap::builder::Str;
 use clap::{Parser, Subcommand, ValueEnum};
 use config_file::FromConfigFile;
 use home::home_dir;
+use log::{debug, error, log_enabled, info, Level};
 use serde::{Deserialize, Serialize};
 use std::io::{self, Write};
 use std::io::{BufRead, BufReader};
@@ -21,6 +22,11 @@ use crate::tyr_config::{get_config, set_config};
 use crate::tyr_config::{TyrArduinoConfig, TyrConfig, TyrFamilies};
 use crate::tyr_mfr::TyrManufactureCommands;
 use crate::tyr_utils::process_command;
+
+#[macro_use]
+extern crate log;
+
+use env_logger::Env;
 
 /// Search for a pattern in a file and display the lines that contain it.
 #[derive(Parser)]
@@ -85,8 +91,19 @@ enum TyrProvisionCommands {
     },
 }
 
+
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let env = Env::default()
+        .filter_or("TYR_LOG_LEVEL", "info")
+        .write_style_or("MY_LOG_STYLE", "always");
+
+    env_logger::init_from_env(env);
+
+    if log_enabled!(Level::Debug) {
+        println!("Debug logging enabled");
+    }
+
     let args = Cli::parse();
 
     let config = tyr_config::get_config()?;
@@ -110,13 +127,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             )?;
         }
         TyrCommands::Bootstrap { command } => {
-            println!("Bootstrapping subcommand {:?}", command);
+            debug!("Bootstrapping subcommand {:?}", command);
         }
         TyrCommands::Provision { command } => {
-            println!("Provisioning subcommand {:?}", command);
+            debug!("Provisioning subcommand {:?}", command);
         }
         TyrCommands::Manufacture { command } => {
-            println!("Manufacturing subcommand {:?}", command);
+            debug!("Manufacturing subcommand {:?}", command);
             tyr_arduino::check_arduino_cli_install()?;
             tyr_mfr::handle_manufacture_commands(command)?;
         }

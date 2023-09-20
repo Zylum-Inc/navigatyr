@@ -54,7 +54,7 @@ fn test_get_default_config_path() {
 }
 
 pub fn write_config(config_path: PathBuf, tyr_config: TyrConfig) -> Result<(), Error> {
-    println!("Writing config to: {:?}", config_path);
+    debug!("Writing config to: {:?}", config_path);
     std::fs::write(config_path, toml::to_string(&tyr_config)?)?;
     Ok(())
 }
@@ -70,7 +70,7 @@ pub fn maybe_read_config(config_path: PathBuf) -> Result<TyrConfig, Error> {
         },
     };
 
-    println!("Config path: {:?}", config_path);
+    debug!("Config path: {:?}", config_path);
 
     if config_path.exists() {
         tyr_config = TyrConfig::from_config_file(config_path)?;

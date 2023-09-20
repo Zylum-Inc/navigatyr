@@ -1,5 +1,6 @@
 use anyhow::Error;
 use std::path::{Path, PathBuf};
+use serde_json::Value;
 
 extern crate yaml_rust;
 use yaml_rust::{YamlEmitter, YamlLoader};
@@ -7,17 +8,19 @@ use yaml_rust::{YamlEmitter, YamlLoader};
 use crate::tyr_config;
 use crate::tyr_utils;
 
-pub fn check_arduino_cli_install() -> Result<(), Error> {
+
+pub fn check_arduino_cli_install() -> Result<(Value), Error> {
     // Check for arduino-cli
     // If it doesn't exist, throw an error
-    tyr_utils::process_command(&["arduino-cli", "version"],
-                               "arduino-cli not found, please download and install it from https://arduino.github.io/arduino-cli/0.33/installation/")
+    tyr_utils::process_command(&["arduino-cli", "version", "--format", "json"],
+                               "arduino-cli not found, please download and install it from https://arduino.github.io/arduino-cli/0.34/installation/")
 }
 
 #[test]
 fn test_check_arduino_cli_install() {
     let result = check_arduino_cli_install();
     assert!(result.is_ok());
+    assert!(result.unwrap()["result"]["VersionString"].as_str().unwrap().contains("0.34"));
 }
 
 pub fn get_cpp_extra_flags(device_id: &str, config_file: &Path) -> Result<String, Error> {
@@ -43,13 +46,13 @@ pub fn get_cpp_extra_flags(device_id: &str, config_file: &Path) -> Result<String
 
     let num_device_config_elements = doc["DeviceConfig"].as_vec().unwrap().len();
 
-    println!(
+    debug!(
         "num_device_config_elements: {:?}",
         num_device_config_elements
     );
 
     for i in 0..num_device_config_elements {
-        println!(
+        trace!(
             "i: {}, DeviceConfig[i]: {:?}, DeviceConfig[i][compile_time_prefix]: {:?}",
             i, doc["DeviceConfig"][i], doc["DeviceConfig"][i]["compile_time_prefix"]
         );
@@ -64,7 +67,7 @@ pub fn get_cpp_extra_flags(device_id: &str, config_file: &Path) -> Result<String
 
     let num_network_config_elements = doc["Networks"][0]["config"].as_vec().unwrap().len();
 
-    println!(
+    debug!(
         "num_network_config_elements: {:?}",
         num_network_config_elements
     );
@@ -79,7 +82,7 @@ pub fn get_cpp_extra_flags(device_id: &str, config_file: &Path) -> Result<String
         cpp_extra_flags.push(' ');
     }
 
-    println!("cpp_extra_flags: {:?}", cpp_extra_flags);
+    debug!("cpp_extra_flags: {:?}", cpp_extra_flags);
 
     Ok(cpp_extra_flags)
 }
@@ -126,7 +129,7 @@ pub fn compile(device_id: &str) -> Result<(), Error> {
 
     let cpp_extra_flags = get_cpp_extra_flags(device_id, device_config_file_path.as_path())?;
 
-    tyr_utils::process_command(
+    let result = tyr_utils::process_command(
         &[
             "arduino-cli",
             "compile",
@@ -138,9 +141,17 @@ pub fn compile(device_id: &str) -> Result<(), Error> {
             "--output-dir",
             &image_path.as_path().display().to_string(),
             &tyr_config::get_arduino_sketch_path().unwrap(),
+            "--format",
+            "json"
         ],
         "Failed to compile image",
     );
+
+    let retval = result.unwrap();
+
+    debug!("retval: {:?}", retval);
+
+    println!("success: {}, compiler_out: {}", retval["result"]["success"], retval["result"]["compiler_out"]);
 
     // tyr_utils::process_command(&["echo", cpp_extra_flags.as_str()], "Failed to compile image");
 
