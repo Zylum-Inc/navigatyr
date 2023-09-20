@@ -32,11 +32,13 @@ pub enum TyrManufactureCommands {
     },
 }
 
-pub fn handle_manufacture_commands(command: TyrManufactureCommands, config: TyrConfig) -> Result<(), Error> {
+pub fn handle_manufacture_commands(
+    command: TyrManufactureCommands,
+    config: TyrConfig,
+) -> Result<(), Error> {
     match command {
         TyrManufactureCommands::ListImages => Ok(()),
-        TyrManufactureCommands::CreateImage { device_id} => {
-
+        TyrManufactureCommands::CreateImage { device_id } => {
             match config.family {
                 crate::tyr_config::TyrFamilies::Arduino => {
                     println!("Creating image for device {:?} ", device_id);

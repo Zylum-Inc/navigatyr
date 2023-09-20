@@ -121,7 +121,11 @@ fn test_get_cpp_extra_flags_device_id_mismatch() {
 pub fn compile(device_id: &str) -> Result<(), Error> {
     let mut image_path = PathBuf::from(&tyr_config::get_arduino_device_path().unwrap());
 
-    debug!("image_path: {:?}, image_path.exists(): {}", image_path, image_path.exists());
+    debug!(
+        "image_path: {:?}, image_path.exists(): {}",
+        image_path,
+        image_path.exists()
+    );
 
     if !image_path.exists() {
         return Err(Error::msg(format!(
@@ -132,7 +136,11 @@ pub fn compile(device_id: &str) -> Result<(), Error> {
 
     let mut sketch_path = PathBuf::from(&tyr_config::get_arduino_sketch_path().unwrap());
 
-    debug!("sketch_path: {:?}, sketch_path.exist(): {}", sketch_path, sketch_path.exists());
+    debug!(
+        "sketch_path: {:?}, sketch_path.exist(): {}",
+        sketch_path,
+        sketch_path.exists()
+    );
 
     if !sketch_path.exists() {
         return Err(Error::msg(format!(
