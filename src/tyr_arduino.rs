@@ -119,6 +119,8 @@ fn test_get_cpp_extra_flags_device_id_mismatch() {
 }
 
 pub fn compile(device_id: &str) -> Result<(), Error> {
+    check_arduino_cli_install()?;
+
     let mut image_path = PathBuf::from(&tyr_config::get_arduino_device_path().unwrap());
 
     debug!(
