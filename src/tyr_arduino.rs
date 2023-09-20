@@ -1,13 +1,12 @@
 use anyhow::Error;
-use std::path::{Path, PathBuf};
 use serde_json::Value;
+use std::path::{Path, PathBuf};
 
 extern crate yaml_rust;
 use yaml_rust::{YamlEmitter, YamlLoader};
 
 use crate::tyr_config;
 use crate::tyr_utils;
-
 
 pub fn check_arduino_cli_install() -> Result<(Value), Error> {
     // Check for arduino-cli
@@ -20,7 +19,10 @@ pub fn check_arduino_cli_install() -> Result<(Value), Error> {
 fn test_check_arduino_cli_install() {
     let result = check_arduino_cli_install();
     assert!(result.is_ok());
-    assert!(result.unwrap()["result"]["VersionString"].as_str().unwrap().contains("0.34"));
+    assert!(result.unwrap()["result"]["VersionString"]
+        .as_str()
+        .unwrap()
+        .contains("0.34"));
 }
 
 pub fn get_cpp_extra_flags(device_id: &str, config_file: &Path) -> Result<String, Error> {
@@ -54,7 +56,9 @@ pub fn get_cpp_extra_flags(device_id: &str, config_file: &Path) -> Result<String
     for i in 0..num_device_config_elements {
         trace!(
             "i: {}, DeviceConfig[i]: {:?}, DeviceConfig[i][compile_time_prefix]: {:?}",
-            i, doc["DeviceConfig"][i], doc["DeviceConfig"][i]["compile_time_prefix"]
+            i,
+            doc["DeviceConfig"][i],
+            doc["DeviceConfig"][i]["compile_time_prefix"]
         );
         cpp_extra_flags.push_str(
             doc["DeviceConfig"][i]["compile_time_prefix"]
@@ -142,7 +146,7 @@ pub fn compile(device_id: &str) -> Result<(), Error> {
             &image_path.as_path().display().to_string(),
             &tyr_config::get_arduino_sketch_path().unwrap(),
             "--format",
-            "json"
+            "json",
         ],
         "Failed to compile image",
     );
@@ -151,7 +155,10 @@ pub fn compile(device_id: &str) -> Result<(), Error> {
 
     debug!("retval: {:?}", retval);
 
-    println!("success: {}, compiler_out: {}", retval["result"]["success"], retval["result"]["compiler_out"]);
+    println!(
+        "success: {}, compiler_out: {}",
+        retval["result"]["success"], retval["result"]["compiler_out"]
+    );
 
     // tyr_utils::process_command(&["echo", cpp_extra_flags.as_str()], "Failed to compile image");
 

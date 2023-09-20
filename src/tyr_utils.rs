@@ -41,5 +41,5 @@ pub fn process_command(command: &[&str], error_msg: &str) -> Result<(Value), Err
         debug!("Command error: {}", String::from_utf8_lossy(&output.stderr));
     }
 
-    Ok((retval))
+    Ok(retval)
 }

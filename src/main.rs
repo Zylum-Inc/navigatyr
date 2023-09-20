@@ -5,7 +5,7 @@ use clap::builder::Str;
 use clap::{Parser, Subcommand, ValueEnum};
 use config_file::FromConfigFile;
 use home::home_dir;
-use log::{debug, error, log_enabled, info, Level};
+use log::{debug, error, info, log_enabled, Level};
 use serde::{Deserialize, Serialize};
 use std::io::{self, Write};
 use std::io::{BufRead, BufReader};
@@ -90,7 +90,6 @@ enum TyrProvisionCommands {
         network_name: String,
     },
 }
-
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
