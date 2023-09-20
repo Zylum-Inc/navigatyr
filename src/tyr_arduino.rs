@@ -121,6 +121,26 @@ fn test_get_cpp_extra_flags_device_id_mismatch() {
 pub fn compile(device_id: &str) -> Result<(), Error> {
     let mut image_path = PathBuf::from(&tyr_config::get_arduino_device_path().unwrap());
 
+    debug!("image_path: {:?}, image_path.exists(): {}", image_path, image_path.exists());
+
+    if !image_path.exists() {
+        return Err(Error::msg(format!(
+            "Device path {:?} does not exist. Please run the set-config command first",
+            image_path
+        )));
+    }
+
+    let mut sketch_path = PathBuf::from(&tyr_config::get_arduino_sketch_path().unwrap());
+
+    debug!("sketch_path: {:?}, sketch_path.exist(): {}", sketch_path, sketch_path.exists());
+
+    if !sketch_path.exists() {
+        return Err(Error::msg(format!(
+            "Sketch path {:?} does not exist",
+            sketch_path
+        )));
+    }
+
     image_path.push(device_id);
 
     std::fs::create_dir_all(image_path.clone()).expect("Failed to create config directory");
@@ -144,7 +164,7 @@ pub fn compile(device_id: &str) -> Result<(), Error> {
             &cpp_extra_flags,
             "--output-dir",
             &image_path.as_path().display().to_string(),
-            &tyr_config::get_arduino_sketch_path().unwrap(),
+            &sketch_path.as_path().display().to_string(),
             "--format",
             "json",
         ],

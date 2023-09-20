@@ -134,7 +134,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         TyrCommands::Manufacture { command } => {
             debug!("Manufacturing subcommand {:?}", command);
             tyr_arduino::check_arduino_cli_install()?;
-            tyr_mfr::handle_manufacture_commands(command)?;
+            tyr_mfr::handle_manufacture_commands(command, config)?;
         }
     }
 

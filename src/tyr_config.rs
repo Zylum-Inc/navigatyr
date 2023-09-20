@@ -14,8 +14,14 @@ pub enum TyrFamilies {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct TyrConfig {
-    family: TyrFamilies,
+    pub(crate) family: TyrFamilies,
     arduino: TyrArduinoConfig,
+}
+
+#[derive(Serialize, Deserialize, EnumString, Debug, Clone, Display)]
+pub enum TyrArduinoBoardType {
+    #[strum(serialize = "adafruit:samd:adafruit_feather_m0")]
+    AdafruitFeatherM0,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -64,9 +70,9 @@ pub fn maybe_read_config(config_path: PathBuf) -> Result<TyrConfig, Error> {
         family: TyrFamilies::Arduino,
         arduino: TyrArduinoConfig {
             cli_path: String::from("arduino-cli"),
-            board_type: String::from("adafruit:samd:adafruit_feather_m0"),
-            sketch_path: String::from("C:\\Users\\siddg\\Documents\\Arduino\\libraries\\zeppylin-arduino-lorawan\\sketches\\chirpstack-otaa-us915a"),
-            devices_path: String::from("C:\\Users\\siddg\\Documents\\Arduino\\libraries\\zeppylin-arduino-lorawan\\devices"),
+            board_type: TyrArduinoBoardType::AdafruitFeatherM0.to_string(),
+            sketch_path: String::from("Unknown"),
+            devices_path: String::from("Unknown"),
         },
     };
 

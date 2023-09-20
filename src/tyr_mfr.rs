@@ -2,6 +2,7 @@ use anyhow::Error;
 use clap::{Parser, Subcommand, ValueEnum};
 
 use crate::tyr_arduino;
+use crate::tyr_config::TyrConfig;
 use crate::tyr_utils::process_command;
 
 #[derive(Subcommand, Debug)]
@@ -31,13 +32,21 @@ pub enum TyrManufactureCommands {
     },
 }
 
-pub fn handle_manufacture_commands(command: TyrManufactureCommands) -> Result<(), Error> {
+pub fn handle_manufacture_commands(command: TyrManufactureCommands, config: TyrConfig) -> Result<(), Error> {
     match command {
         TyrManufactureCommands::ListImages => Ok(()),
-        TyrManufactureCommands::CreateImage { device_id } => {
-            println!("Creating image for device {:?} ", device_id);
+        TyrManufactureCommands::CreateImage { device_id} => {
 
-            tyr_arduino::compile(&device_id)?;
+            match config.family {
+                crate::tyr_config::TyrFamilies::Arduino => {
+                    println!("Creating image for device {:?} ", device_id);
+
+                    tyr_arduino::compile(&device_id)?;
+                }
+                _ => {
+                    println!("Family {:?} not supported", config.family);
+                }
+            }
 
             Ok(())
         }
