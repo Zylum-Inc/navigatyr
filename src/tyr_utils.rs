@@ -23,8 +23,6 @@ pub fn process_command(command: &[&str], error_msg: &str) -> Result<(Value), Err
             .expect("failed to execute process")
     };
 
-    retval["result"] = serde_json::from_str(&String::from_utf8_lossy(&output.stdout))?;
-
     if !output.status.success() {
         error!("Command Failed: {}", error_msg);
         error!(
@@ -34,6 +32,8 @@ pub fn process_command(command: &[&str], error_msg: &str) -> Result<(Value), Err
         error!("Command error: {}", String::from_utf8_lossy(&output.stderr));
         std::process::exit(1);
     } else {
+        retval["result"] = serde_json::from_str(&String::from_utf8_lossy(&output.stdout))?;
+
         debug!(
             "Command output: {}",
             String::from_utf8_lossy(&output.stdout)
