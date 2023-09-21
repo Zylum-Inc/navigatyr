@@ -47,7 +47,7 @@ impl fmt::Display for TyrArduinoConfig {
         write!(
             f,
             "\n\tboard_type: {}\n\tcli_path: {}\n\tsketch_path: {}\n\tdevices_path: {}",
-            self.board_type, self.cli_path, self.sketch_path,  self.devices_path
+            self.board_type, self.cli_path, self.sketch_path, self.devices_path
         )
     }
 }
