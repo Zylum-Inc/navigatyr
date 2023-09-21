@@ -1,10 +1,11 @@
 use anyhow::Error;
 use config_file::FromConfigFile;
 use serde::{Deserialize, Serialize};
+use std::fmt;
 use std::path::PathBuf;
 use strum_macros::{Display, EnumString};
 
-#[derive(Serialize, Deserialize, EnumString, Debug, Clone)]
+#[derive(Serialize, Deserialize, EnumString, Debug, Clone, Display)]
 pub enum TyrFamilies {
     #[strum(serialize = "arduino")]
     Arduino,
@@ -16,6 +17,12 @@ pub enum TyrFamilies {
 pub struct TyrConfig {
     pub(crate) family: TyrFamilies,
     arduino: TyrArduinoConfig,
+}
+
+impl fmt::Display for TyrConfig {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "Family: {}\nFamilyConfig: {}", self.family, self.arduino)
+    }
 }
 
 #[derive(Serialize, Deserialize, EnumString, Debug, Clone, Display)]
@@ -33,6 +40,16 @@ pub struct TyrArduinoConfig {
     board_type: String,
     #[serde(default)]
     devices_path: String,
+}
+
+impl fmt::Display for TyrArduinoConfig {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "\n\tboard_type: {}\n\tcli_path: {}\n\tsketch_path: {}\n\tdevices_path: {}",
+            self.board_type, self.cli_path, self.sketch_path,  self.devices_path
+        )
+    }
 }
 
 pub fn get_default_config_path() -> PathBuf {

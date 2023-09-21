@@ -109,7 +109,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     match args.command {
         TyrCommands::GetConfig => {
-            println!("Config: {:?}", config);
+            println!("Config: {}", config);
         }
         TyrCommands::SetConfig {
             family,

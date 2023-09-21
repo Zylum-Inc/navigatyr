@@ -131,7 +131,8 @@ pub fn compile(device_id: &str) -> Result<(), Error> {
 
     if !image_path.exists() {
         return Err(Error::msg(format!(
-            "Device path {:?} does not exist. Please run the set-config command first",
+            "Device path {:?} does not exist. Please import a devices folder \
+            and (re)run the set-config command",
             image_path
         )));
     }
@@ -146,7 +147,8 @@ pub fn compile(device_id: &str) -> Result<(), Error> {
 
     if !sketch_path.exists() {
         return Err(Error::msg(format!(
-            "Sketch path {:?} does not exist",
+            "Sketch path {:?} does not exist. Please import a sketch folder \
+            and (re)run the set-config command",
             sketch_path
         )));
     }
